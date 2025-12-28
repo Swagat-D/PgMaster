@@ -1,6 +1,7 @@
-import { Tabs } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Platform, Dimensions } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { Tabs } from "expo-router";
+import { Dimensions, Platform } from "react-native";
 import Header from "../../src/components/Header";
 
 const { width, height } = Dimensions.get("window");
@@ -37,12 +38,12 @@ export default function TabsLayout() {
         android: hasNotch ? hp(1.8) : hp(1.2),
         default: hp(1.2),
         }),
-        paddingTop: hp(1),
+        paddingTop: hp(0.6),
         paddingHorizontal: wp(4),
         borderRadius: normalize(20),
         marginHorizontal: wp(4),
         marginBottom: Platform.select({
-        default: normalize(30),
+        default: hp(5),
         }),
         position: "absolute",
       },
@@ -81,6 +82,36 @@ export default function TabsLayout() {
           color={color} 
         />
         ),
+      }}
+      />
+
+      <Tabs.Screen
+      name="create"
+      options={{
+        title: "",
+        tabBarLabel: "",
+        tabBarIcon: () => (
+          <LinearGradient
+            colors={["#FFC800", "#FFECA7"]}
+            start={{ x: 0, y: 1 }}
+            end={{ x: 0.5, y: 0 }}
+            style={{
+              width: normalize(48),
+              height: normalize(48),
+              borderRadius: normalize(10),
+              alignItems: "center",
+              justifyContent: "center",
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.15,
+              shadowRadius: 6,
+              elevation: 6,
+              marginTop: hp(2),
+            }}
+          >
+            <MaterialCommunityIcons name="plus" size={normalize(34)} color="#FFFFFF" />
+          </LinearGradient>
+          ),
       }}
       />
 

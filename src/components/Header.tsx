@@ -1,146 +1,101 @@
-import React from "react";
-import { View, StyleSheet, TouchableOpacity, Image, Dimensions, Platform, StatusBar, Text } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { Ionicons } from '@expo/vector-icons';
+import React from 'react';
+import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-
-const { width, height } = Dimensions.get("window");
-
-// Calculate responsive sizes
-const getLogoSize = () => {
-  if (width < 360) return 42;
-  if (width < 400) return 46;
-  return 50;
-};
-
-const getProfileSize = () => {
-  if (width < 360) return 42;
-  if (width < 400) return 46;
-  return 42;
-};
-
-const getNotificationSize = () => {
-  if (width < 360) return 22;
-  if (width < 400) return 24;
-  return 26;
+const { width, height } = require('react-native').Dimensions.get('window');
+const wp = (p: number) => (width * p) / 100;
+const hp = (p: number) => (height * p) / 100;
+const normalize = (size: number) => {
+  const scale = width / 375;
+  return Math.round(size * scale);
 };
 
 export default function Header() {
-  const insets = useSafeAreaInsets();
-  const logoSize = getLogoSize();
-  const profileSize = getProfileSize();
-  const notificationSize = getNotificationSize();
-  const router = useRouter();
-
   return (
-    <View style={[styles.container, { paddingTop: insets.top > 0 ? insets.top : (Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0) }]}>
-      <View style={styles.content}>
-        {/* Logo */}
-        <TouchableOpacity activeOpacity={0.8}>
-          <Image
-            source={require("../../assets/logo.png")}
-            style={[styles.logo, { width: logoSize, height: logoSize }]}
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
+    <SafeAreaView edges={["top"]} style={styles.safe}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFD800" />
+      <View style={styles.container}>
+        <View style={styles.left}>
+          <Image source={require('../../assets/pht.png')} style={styles.avatar} />
+        </View>
 
-        {/* Right Side Icons */}
-        <View style={styles.rightIcons}>
-          <TouchableOpacity style={styles.iconButton} activeOpacity={0.7} 
-            onPress={() => router.push("/")}
-          >
-            <Ionicons name="notifications-outline" size={notificationSize} color="#000000" />
-            <View style={styles.unreadBadge}>
-              <Text style={styles.unreadText}>3</Text>
-            </View>
+        <View style={styles.center}>
+          <Text style={styles.welcome}>Welcome Gyana</Text>
+          <TouchableOpacity style={styles.locationRow} activeOpacity={0.8}>
+            <Text style={styles.location}>Kalyani Nagar</Text>
+            <Ionicons name="caret-down" size={normalize(16)} color="#000000" style={styles.chev} />
           </TouchableOpacity>
+        </View>
 
-          {/* User Profile Picture */}
-          <TouchableOpacity 
-            style={[styles.profileButton, { width: profileSize, height: profileSize }]} 
-            activeOpacity={0.8}
-            onPress={() => router.push("/")}
-          >
-            <Image
-              source={require("../../assets/pht.png")}
-              style={styles.profileImage}
-              resizeMode="cover"
-            />
+        <View style={styles.right}>
+          <TouchableOpacity style={styles.iconBtn} onPress={() => {}}>
+            <Ionicons name="headset-outline" size={normalize(18)} color="#FFFFFF" />
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.iconBtn, styles.helpBtn]} onPress={() => {}}>
+            <Ionicons name="help-outline" size={normalize(18)} color="#FFFFFF" />
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safe: {
+    backgroundColor: '#FED232',
+  },
   container: {
-    backgroundColor: "#FFFFFF",
-    borderBottomWidth: 0.5,
-    borderBottomColor: "#E5E5E5",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: wp(5),
+    paddingTop: hp(1.6),
+    paddingBottom: hp(1),
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  content: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: Math.max(width * 0.05, 16),
-    paddingTop: Platform.OS === "ios" ? 8 : 12,
-    paddingBottom: Platform.OS === "ios" ? 12 : 14,
-    minHeight: 60,
+  left: {
+    marginRight: wp(3),
   },
-  logo: {
-    maxWidth: 60,
-    maxHeight: 60,
+  avatar: {
+    width: normalize(50),
+    height: normalize(50),
+    borderRadius: normalize(25),
+    borderWidth: 1,
+    borderColor: '#FFFFFF'
   },
-  rightIcons: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: width < 360 ? 12 : width < 400 ? 14 : 16,
+  center: {
+    flex: 1,
+    justifyContent: 'center'
   },
-  iconButton: {
-    position: "relative",
-    padding: 6,
-    justifyContent: "center",
-    alignItems: "center",
+  welcome: {
+    fontSize: normalize(12),
+    color: '#E74D3C',
+    fontFamily: 'Inter-Regular'
   },
-  unreadBadge: {
-    position: "absolute",
-    top: 2,
-    right: 2,
-    minWidth: 18,
-    height: 18,
-    paddingHorizontal: 4,
-    backgroundColor: "#FF3B30",
-    borderRadius: 9,
-    borderWidth: 2,
-    borderColor: "#FFFFFF",
-    justifyContent: "center",
-    alignItems: "center",
+  locationRow: { 
+    flexDirection: 'row', 
+    alignItems: 'center' 
   },
-  unreadText: {
-    color: "#FFFFFF",
-    fontSize: 10,
-    fontWeight: "600",
-    lineHeight: 12,
+  location: {
+    fontSize: normalize(15),
+    color: '#000000',
+    fontFamily: 'Poppins-Mixed'
   },
-  profileButton: {
-    borderRadius: 50,
-    overflow: "hidden",
-    borderWidth: 2,
-    borderColor: "#F0F0F0",
-    backgroundColor: "#FFFFFF",
+  chev: { marginLeft: wp(1) },
+  right: { flexDirection: 'row', alignItems: 'center' },
+  iconBtn: {
+    width: normalize(36),
+    height: normalize(36),
+    borderRadius: normalize(18),
+    backgroundColor: '#000000',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: wp(3)
   },
-  profileImage: {
-    width: "100%",
-    height: "100%",
-  },
+  helpBtn: { backgroundColor: '#000000' }
 });
