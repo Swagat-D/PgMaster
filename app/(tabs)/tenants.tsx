@@ -2,6 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useRef, useState } from 'react';
 import { Dimensions, Image, Keyboard, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import TenantDetailsModal from '../../src/components/TenantDetailsModal';
+import tenantsDataImport, { Tenant } from '../../src/data/tenants';
 
 const { width, height } = Dimensions.get('window');
 const wp = (p: number) => (width * p) / 100;
@@ -11,80 +13,7 @@ const normalize = (size: number) => {
   return Math.round(size * scale);
 };
 
-type Tenant = {
-  id: string;
-  name: string;
-  room: string;
-  underNotice: boolean;
-  rentAmount?: number;
-  joinedDate: string;
-  mobile?: string;
-  photo?: any;
-  underNoticeDays?: number;
-  bookingAmount?: number;
-  bookingDate?: string;
-  moveInDate?: string;
-};
-
-const tenantsData: Tenant[] = [
-  {
-    id: '1',
-    name: 'Rihan Kapoor',
-    room: '101',
-    underNotice: true,
-    rentAmount: 1400,
-    underNoticeDays: 2,
-    joinedDate: '23 Sep 2022',
-    bookingAmount: 1400,
-    bookingDate: '10 Oct 2025',
-    moveInDate: '23 Oct 2025',
-    mobile: '+91 9876543210',
-  },
-  {
-    id: '2',
-    name: 'Pabitra Sundariii',
-    room: '102',
-    underNotice: true,
-    rentAmount: 1800,
-    underNoticeDays: 5,
-    joinedDate: '23 Sep 2022',
-    bookingDate: '01 Sep 2025',
-    moveInDate: '05 Sep 2025',
-    mobile: '+91 9876543211',
-  },
-  {
-    id: '3',
-    name: 'Swagat Dash',
-    room: '101',
-    underNotice: true,
-    rentAmount: 2000,
-    underNoticeDays: 3,
-    bookingDate: '15 Jul 2025',
-    moveInDate: '20 Jul 2025',
-    joinedDate: '23 Sep 2022',
-    mobile: '+91 9876543212',
-  },
-  {
-    id: '4',
-    name: 'Arjun Sharma',
-    room: '102',
-    underNotice: false,
-    rentAmount: 2200,
-    joinedDate: '15 Aug 2022',
-    bookingAmount: 2200,
-    mobile: '+91 9876543213',
-  },
-  {
-    id: '5',
-    name: 'Priya Singh',
-    room: '103',
-    underNotice: false,
-    rentAmount: 1250,
-    joinedDate: '10 Jul 2022',
-    bookingAmount: 1250,
-    mobile: '+91 9876543214',
-  },
-];
+const tenantsData = tenantsDataImport;
 
 const formatINR = (amt?: number) => {
   if (amt == null) return '-';
@@ -99,6 +28,7 @@ export default function Tenants() {
   const [searchText, setSearchText] = useState('');
   const inputRef = useRef<TextInput | null>(null);
   const [viewMode, setViewMode] = useState<'all' | 'under'>('all');
+  const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
 
   const filteredTenants = useMemo(() => {
     const q = searchText.trim().toLowerCase();
@@ -242,7 +172,7 @@ export default function Tenants() {
 
         <View style={styles.listContainer}>
           {visibleTenants.map(t => (
-            <TouchableOpacity key={t.id} activeOpacity={0.9} style={styles.card}>
+            <TouchableOpacity key={t.id} activeOpacity={0.9} style={styles.card} onPress={() => setSelectedTenant(t)}>
               <View style={styles.avatarWrap}>
                 <Image source={require('../../assets/pht.png')} style={styles.avatar} />
               </View>
@@ -313,6 +243,7 @@ export default function Tenants() {
             </TouchableOpacity>
           ))}
         </View>
+        <TenantDetailsModal visible={!!selectedTenant} tenant={selectedTenant} onClose={() => setSelectedTenant(null)} />
       </ScrollView>
     </SafeAreaView>
   );
