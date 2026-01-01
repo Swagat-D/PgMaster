@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
+// simplified styling: remove gradients
 import { Tabs } from "expo-router";
-import { Dimensions, Platform } from "react-native";
+import { Dimensions, Platform, View } from "react-native";
 import Header from "../../src/components/Header";
 
 const { width, height } = Dimensions.get("window");
@@ -21,39 +21,44 @@ export default function TabsLayout() {
       screenOptions={{
       headerShown: true,
       header: () => <Header />,
-      tabBarActiveTintColor: "#FFDF6B",
-      tabBarInactiveTintColor: "#FFFFFF",
+      tabBarActiveTintColor: "#CBDFFF",
+      tabBarInactiveTintColor: "#A3B7D4",
       tabBarStyle: {
-        backgroundColor: "#000000",
+        backgroundColor: "#FFFFFF",
+        width: '100%',
         borderTopWidth: 0,
-        elevation: 0,
-        shadowOpacity: 0,
+        elevation: 6,
+        shadowColor: "#000000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.06,
+        shadowRadius: 20,
         height: Platform.select({
-        ios: hasNotch ? hp(9) : hp(8),
-        android: hasNotch ? hp(8) : hp(7),
-        default: hp(7),
+        ios: hasNotch ? hp(11) : hp(9.5),
+        android: hasNotch ? hp(9.5) : hp(8.5),
+        default: hp(8.5),
         }),
         paddingBottom: Platform.select({
-        ios: hasNotch ? hp(2.6) : hp(1.2),
-        android: hasNotch ? hp(1.8) : hp(1.2),
-        default: hp(1.2),
+        ios: hasNotch ? hp(3) : hp(1.8),
+        android: hasNotch ? hp(2.4) : hp(1.6),
+        default: hp(1.6),
         }),
         paddingTop: hp(0.6),
-        paddingHorizontal: wp(4),
-        borderRadius: normalize(20),
-        marginHorizontal: wp(4),
-        marginBottom: Platform.select({
-        default: hp(5),
-        }),
+        paddingHorizontal: wp(6),
+        borderTopRightRadius: normalize(32),
+        borderTopLeftRadius: normalize(32),
+        marginBottom: 0,
+        bottom: 0,
         position: "absolute",
       },
       tabBarLabelStyle: {
-        fontSize: normalize(width < 360 ? 10 : width < 400 ? 11 : 12),
-        fontWeight: "400",
+        fontSize: normalize(12),
+        fontFamily: "Inter-Regular",
         marginTop: normalize(2),
       },
       tabBarIconStyle: {
         marginTop: normalize(1),
+        borderWidth: 0,
+        borderColor: 'red',
       },
       }}
     >
@@ -61,12 +66,12 @@ export default function TabsLayout() {
       name="home"
       options={{
         title: "Home",
-        tabBarIcon: ({ color, focused }) => (
-        <MaterialCommunityIcons 
-          name="home-outline" 
-          size={ focused ? normalize(28) : normalize(24)} 
-          color={color} 
-        />
+        tabBarIcon: ({ focused }) => (
+          <MaterialCommunityIcons
+            name={focused ? 'home' : 'home-outline'}
+            size={ focused ? normalize(28) : normalize(24)}
+            color={focused ? '#CBDFFF' : '#171A1F'}
+          />
         ),
       }}
       />
@@ -75,43 +80,41 @@ export default function TabsLayout() {
       name="money"
       options={{
         title: "Money",
-        tabBarIcon: ({ color, focused }) => (
-        <MaterialCommunityIcons 
-          name="cash-multiple" 
-          size={focused ? normalize(28) : normalize(24)}
-          color={color} 
-        />
+        tabBarIcon: ({ focused }) => (
+          <MaterialCommunityIcons
+            name={focused ? 'cash' : 'cash'}
+            size={ focused ? normalize(28) : normalize(24)}
+            color={focused ? '#CBDFFF' : '#171A1F'}
+          />
         ),
       }}
       />
 
       <Tabs.Screen
-      name="create"
+      name="complaint"
       options={{
         title: "",
         tabBarLabel: "",
         tabBarIcon: () => (
-          <LinearGradient
-            colors={["#FFC800", "#FFECA7"]}
-            start={{ x: 0, y: 1 }}
-            end={{ x: 0.5, y: 0 }}
-            style={{
-              width: normalize(48),
-              height: normalize(48),
-              borderRadius: normalize(10),
-              alignItems: "center",
-              justifyContent: "center",
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.15,
-              shadowRadius: 6,
-              elevation: 6,
-              marginTop: hp(2),
-            }}
-          >
-            <MaterialCommunityIcons name="plus" size={normalize(34)} color="#FFFFFF" />
-          </LinearGradient>
-          ),
+          <View style={{
+            width: hp(8),
+            height: hp(8),
+            borderRadius: hp(4),
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#FFFFFF',
+            borderWidth: 1,
+            borderColor: '#E6ECEF',
+            marginTop: -normalize(18),
+            shadowColor: '#000000',
+            shadowOffset: { width: 0, height: -6 },
+            shadowOpacity: 0.08,
+            shadowRadius: 4,
+            elevation: 3
+          }}>
+            <MaterialCommunityIcons name={'alert'} size={hp(4)} color={'#CBDFFF'} />
+          </View>
+        ),
       }}
       />
 
@@ -119,12 +122,12 @@ export default function TabsLayout() {
       name="tenants"
       options={{
         title: "Tenants",
-        tabBarIcon: ({ color, focused }) => (
-        <MaterialCommunityIcons 
-          name="account-multiple-outline" 
-          size={focused ? normalize(28) : normalize(24)}
-          color={color}
-        />
+        tabBarIcon: ({ focused }) => (
+          <MaterialCommunityIcons
+            name={focused ? 'account-multiple' : 'account-multiple-outline'}
+            size={ focused ? normalize(28) : normalize(24)}
+            color={focused ? '#CBDFFF' : '#171A1F'}
+          />
         ),
       }}
       />
@@ -133,12 +136,12 @@ export default function TabsLayout() {
       name="property"
       options={{
         title: "Property",
-        tabBarIcon: ({ color, focused }) => (
-        <MaterialCommunityIcons 
-          name="domain" 
-          size={focused ? normalize(28) : normalize(24)} 
-          color={color} 
-        />
+        tabBarIcon: ({ focused }) => (
+          <MaterialCommunityIcons
+            name={'domain'}
+            size={ focused ? normalize(28) : normalize(24)}
+            color={focused ? '#CBDFFF' : '#171A1F'}
+          />
         ),
       }}
       />

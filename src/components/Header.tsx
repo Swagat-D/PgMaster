@@ -14,7 +14,7 @@ const normalize = (size: number) => {
 export default function Header() {
   return (
     <SafeAreaView edges={["top"]} style={styles.safe}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFD800" />
+      <StatusBar barStyle="dark-content" backgroundColor="#CBDFFF" />
       <View style={styles.container}>
         <View style={styles.left}>
           <Image source={require('../../assets/pht.png')} style={styles.avatar} />
@@ -43,7 +43,7 @@ export default function Header() {
 
 const styles = StyleSheet.create({
   safe: {
-    backgroundColor: '#FED232',
+    backgroundColor: '#CBDFFF',
   },
   container: {
     flexDirection: 'row',

@@ -1,4 +1,5 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import React, { useMemo, useRef, useState } from 'react';
 import { Dimensions, Keyboard, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -24,6 +25,7 @@ const formatINR = (amt?: number) => {
 };
 
 export default function Property() {
+	const router = useRouter();
 	const [searchText, setSearchText] = useState('');
 	const inputRef = useRef<TextInput | null>(null);
 
@@ -125,7 +127,7 @@ export default function Property() {
 				) : (
 					<View style={styles.listContainer}>
 						{filteredRooms.map((r: Room) => (
-							<View key={r.id} style={styles.roomCard}>
+							<TouchableOpacity key={r.id} activeOpacity={0.9} onPress={() => router.push(`../property/${r.id}`)} style={styles.roomCard}>
 								<View style={styles.roomHeader}>
 									<View style={styles.roomTitleWrap}>
 										<View style={styles.roomIcon}><MaterialCommunityIcons name="bed-outline" size={18} color="#111827" /></View>
@@ -146,12 +148,12 @@ export default function Property() {
 											<View style={[styles.roomStatsCol, styles.statInline]}>
 												<MaterialCommunityIcons name="bed-outline" size={16} color="#6B7280" style={{ marginRight: 8 }} />
 												<Text style={styles.roomStatLabel}>Bed: </Text>
-												<Text style={styles.roomStatValue}>{r.bedCount}</Text>
+												<Text style={[styles.roomStatValue, styles.grey]}>{r.bedCount}</Text>
 											</View>
 											<View style={[styles.roomStatsCol, styles.statInline]}>
 												<Ionicons name="cash-outline" size={16} color="#6B7280" style={{ marginRight: 8 }} />
 												<Text style={styles.roomStatLabel}>Rent Due: </Text>
-												<Text style={[styles.roomStatValue, styles.rent]}>{r.rentDueCount}</Text>
+												<Text style={[styles.roomStatValue, styles.grey]}>{r.rentDueCount}</Text>
 											</View>
 										</View>
 
@@ -201,7 +203,7 @@ export default function Property() {
 											<TouchableOpacity style={styles.addTenantBtn}><Text style={styles.addTenantText}>ADD TENANT</Text></TouchableOpacity>
 										</View>
 									</View>
-								</View>
+								</TouchableOpacity>
 						))}
 					</View>
 				)}
