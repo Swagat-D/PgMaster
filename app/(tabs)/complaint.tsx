@@ -1,17 +1,10 @@
 import { Ionicons } from '@expo/vector-icons'
+import { useRouter } from 'expo-router'
 import React, { useMemo, useRef, useState } from 'react'
 import { Dimensions, Keyboard, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import complaintsData from '../../src/data/complaints'
-
-type ComplaintItem = {
-  id: string
-  title: string
-  raisedBy: string
-  room: string
-  createdOn: string
-  status: 'open' | 'inprogress' | 'resolved'
-}
+import type { Complaint } from '../../src/data/complaints'
 
 const { width, height } = Dimensions.get('window')
 const wp = (p: number) => (width * p) / 100
@@ -21,9 +14,10 @@ const normalize = (size: number) => {
   return Math.round(size * scale)
 }
 
-const sampleComplaints: ComplaintItem[] = complaintsData;
+const sampleComplaints: Complaint[] = complaintsData;
 
 export default function Complaint() {
+  const router = useRouter();
   const [searchText, setSearchText] = useState('')
   const [segment, setSegment] = useState<'open' | 'inprogress' | 'resolved'>('open')
   const inputRef = useRef<TextInput | null>(null)
@@ -82,7 +76,12 @@ export default function Complaint() {
         </View>
         {/* List */}
         <View style={styles.listContainer}>
-          {filtered.map(c => (
+          {filtered.length === 0 ? (
+            <View style={styles.emptyWrap}>
+              <Text style={styles.emptyTitle}>No complaints available</Text>
+              <Text style={styles.emptySubtitle}>Try a different filter or search</Text>
+            </View>
+          ) : filtered.map(c => (
             <View key={c.id} style={styles.card}>
               <View style={styles.cardHeader}>
                 <Text style={styles.cardTitle}>{c.title}</Text>
@@ -107,7 +106,7 @@ export default function Complaint() {
                 <Text style={styles.cardValue}>{c.createdOn}</Text>
               </View>
 
-              <TouchableOpacity style={styles.detailsBtn} activeOpacity={0.9}>
+              <TouchableOpacity style={styles.detailsBtn} activeOpacity={0.9} onPress={() => router.push({ pathname: '/complaint/[id]', params: { id: c.id } })}>
                 <Text style={styles.detailsText}>Details</Text>
               </TouchableOpacity>
             </View>
