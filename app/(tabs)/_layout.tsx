@@ -42,7 +42,6 @@ export default function TabsLayout() {
         android: hasNotch ? hp(2.4) : hp(1.6),
         default: hp(1.6),
         }),
-        paddingTop: hp(0.6),
         paddingHorizontal: wp(6),
         borderTopRightRadius: normalize(32),
         borderTopLeftRadius: normalize(32),

@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { Dimensions, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Image, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
@@ -51,23 +51,27 @@ export default function OTP() {
             </TouchableOpacity>
           </View>
 
-          <View style={styles.otpRow}>
+          <View
+            style={styles.otpRow}
+            onStartShouldSetResponder={() => true}
+            onResponderGrant={() => { inputRef.current?.focus(); }}
+          >
             {boxes.map((ch, i) => (
               <View key={i} style={[styles.otpBox, ch ? styles.otpBoxFilled : null]}>
                 <Text style={ch ? styles.otpTextFilled : styles.otpText}>{ch}</Text>
               </View>
             ))}
 
-            <TextInput
-              ref={inputRef}
-              value={otp}
-              onChangeText={handleChange}
-              style={styles.overlayInput}
-              keyboardType="numeric"
-              maxLength={6}
-              selectionColor="transparent"
-              underlineColorAndroid="transparent"
-            />
+              <TextInput
+                ref={inputRef}
+                value={otp}
+                onChangeText={handleChange}
+                style={styles.overlayInput}
+                keyboardType="numeric"
+                maxLength={6}
+                selectionColor="transparent"
+                underlineColorAndroid="transparent"
+              />
           </View>
 
           <TouchableOpacity
@@ -183,7 +187,9 @@ const styles = StyleSheet.create({
     right: 0, 
     top: 0, 
     bottom: 0, 
-    opacity: 0 
+    opacity: Platform.OS === 'ios' ? 0.01 : 0,
+    zIndex: 2,
+    elevation: 2,
   },
   verifyBtn: { 
     backgroundColor: '#FEDC15', 

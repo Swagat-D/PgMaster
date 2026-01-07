@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import React from 'react';
-import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width, height } = require('react-native').Dimensions.get('window');
@@ -12,12 +13,15 @@ const normalize = (size: number) => {
 };
 
 export default function Header() {
+  const router = useRouter();
   return (
-    <SafeAreaView edges={["top"]} style={styles.safe}>
+    <SafeAreaView edges={Platform.OS === 'ios' ? ['top'] : ['top']} style={styles.safe}>
       <StatusBar barStyle="dark-content" backgroundColor="#CBDFFF" />
       <View style={styles.container}>
         <View style={styles.left}>
+          <TouchableOpacity activeOpacity={0.8} onPress={() => router.push('/profile/view')}>
           <Image source={require('../../assets/pht.png')} style={styles.avatar} />
+          </TouchableOpacity>
         </View>
 
         <View style={styles.center}>

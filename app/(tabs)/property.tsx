@@ -171,7 +171,6 @@ export default function Property() {
 										</View>
 									</View>
 
-									{/* Bottom row: bed icons (left) and Add tenant (right) */}
 									<View style={styles.roomActionsRow}>
 										{(() => {
 											const occupiedBeds = r.occupancyPercent != null ? Math.round((r.occupancyPercent / 100) * r.bedCount) : (r.status === 'full' ? r.bedCount : 0);
@@ -200,7 +199,9 @@ export default function Property() {
 										})()}
 
 										<View style={{ marginLeft: 'auto' }}>
-											<TouchableOpacity style={styles.addTenantBtn}><Text style={styles.addTenantText}>ADD TENANT</Text></TouchableOpacity>
+											<TouchableOpacity style={styles.addTenantBtn} activeOpacity={0.9} onPress={() => router.push ('/addTenant')}>
+												<Text style={styles.addTenantText}>ADD TENANT</Text>
+											</TouchableOpacity>
 										</View>
 									</View>
 								</TouchableOpacity>
@@ -249,7 +250,7 @@ const styles = StyleSheet.create({
 	segmentWrap: { paddingHorizontal: wp(4), marginBottom: hp(1.2) },
 	segmentBg: { backgroundColor: '#000', borderRadius: normalize(8), padding: wp(1.2), flexDirection: 'row', justifyContent: 'space-between' },
 	segmentPill: { flex: 1, paddingVertical: hp(0.6), alignItems: 'center', borderRadius: normalize(6), marginHorizontal: wp(0.5), backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#F3F4F6' },
-	segmentPillActive: { backgroundColor: '#FDE68A', borderColor: '#FDE68A' },
+	segmentPillActive: { backgroundColor: '#CBDFFF', borderColor: '#7A7E7E' },
 	segmentText: { color: '#111827', fontFamily: 'Inter-Medium' },
 	segmentTextActive: { color: '#111827', fontFamily: 'Inter-SemiBold' },
 

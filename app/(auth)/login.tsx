@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import React, { useRef, useState } from 'react';
-import { Dimensions, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Image, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
@@ -33,7 +33,11 @@ export default function Login() {
         <View style={styles.phoneRow}>
           <Text style={styles.cc}>+91</Text>
 
-          <View style={[styles.digitsContainer, focused && styles.digitsContainerFocused]}>
+          <View
+            style={[styles.digitsContainer, focused && styles.digitsContainerFocused]}
+            onStartShouldSetResponder={() => true}
+            onResponderGrant={() => { inputRef.current?.focus(); }}
+          >
               {Array.from({ length: 10 }).map((_, i) => {
                 const char = phone[i];
                 return (
@@ -56,7 +60,6 @@ export default function Login() {
                 onFocus={() => setFocused(true)}
                 onBlur={() => setFocused(false)}
                 underlineColorAndroid="transparent"
-                
               />
             </View>
 
@@ -157,7 +160,9 @@ const styles = StyleSheet.create({
     right: 0, 
     top: 0, 
     bottom: 0, 
-    opacity: 0 
+    opacity: Platform.OS === 'ios' ? 0.01 : 0,
+    zIndex: 2,
+    elevation: 2,
   },
   digitsContainerFocused: { 
     borderBottomWidth: 0.6, 

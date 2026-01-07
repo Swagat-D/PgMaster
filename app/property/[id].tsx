@@ -2,7 +2,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useMemo, useState } from 'react';
-import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import roomsDataImport, { Room } from '../../src/data/properties';
 import tenantsDataImport, { Tenant } from '../../src/data/tenants';
@@ -67,7 +67,7 @@ export default function RoomDetails() {
     const firstUnderNotice = underNoticeList.length > 0 ? underNoticeList[0] : null;
 
     return (
-        <SafeAreaView edges={["top"]} style={styles.safe}>
+        <SafeAreaView edges={Platform.OS === 'ios' ? ['top'] : ['top']} style={styles.safe}>
             <StatusBar style="dark" backgroundColor="#CBDFFF" />
             <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
             <View style={styles.imageWrap}>
@@ -340,10 +340,10 @@ const styles = StyleSheet.create({
     grey: { color: '#CB6E00' },
     rent: { color: '#FF2D2D', fontFamily: 'Poppins-Mixed' },
 
-    actionButtonsSection: { flexDirection: 'row', paddingHorizontal: wp(4), paddingTop: hp(1.5), paddingBottom: hp(4), gap: wp(3), backgroundColor: '#FFFFFF', borderTopWidth: 1, borderTopColor: '#E5E7EB' },
-    editButton: { flex: 1, backgroundColor: '#FFFFFF', borderRadius: normalize(8), paddingVertical: hp(1.5), justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: '#D1D5DB' },
+    actionButtonsSection: { flexDirection: 'row', paddingHorizontal: wp(4), paddingTop: hp(1), paddingBottom: hp(4), gap: wp(3), backgroundColor: '#FFFFFF', borderTopWidth: 1, borderTopColor: '#E5E7EB' },
+    editButton: { flex: 1, backgroundColor: '#FFFFFF', borderRadius: normalize(8), paddingVertical: hp(1.5), justifyContent: 'center', alignItems: 'center', borderWidth: 0.5, borderColor: '#171A1F' },
     editButtonText: { fontSize: normalize(14), color: '#000000', fontFamily: 'Inter-SemiBold' },
-    deleteButton: { flex: 1, backgroundColor: '#BFDBFE', borderRadius: normalize(8), paddingVertical: hp(1.5), justifyContent: 'center', alignItems: 'center' },
+    deleteButton: { flex: 1, backgroundColor: '#BFDBFE', borderRadius: normalize(8), paddingVertical: hp(1.5), justifyContent: 'center', alignItems: 'center', borderWidth: 0.5, borderColor: '#171A1F' },
     deleteButtonText: { fontSize: normalize(14), color: '#000000', fontFamily: 'Inter-SemiBold' },
 
     notFoundWrap: { flex: 1, justifyContent: 'center', alignItems: 'center' },
