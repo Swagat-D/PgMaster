@@ -116,7 +116,7 @@ export default function Complaint() {
       </ScrollView>
 
       {/* Floating Add button - fixed position above bottom tabs */}
-      <TouchableOpacity style={styles.fab} activeOpacity={0.85}>
+      <TouchableOpacity style={styles.fab} activeOpacity={0.85} onPress={() => router.push('/complaint/new')}>
         <Ionicons name="add" size={28} color="#414141" />
       </TouchableOpacity>
     </SafeAreaView>

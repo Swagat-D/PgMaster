@@ -21,6 +21,10 @@ export default function ComplaintDetails() {
   const [isResolved, setIsResolved] = useState(complaint?.status !== 'open');
   const [status, setStatus] = useState<'open' | 'inprogress' | 'resolved'>(complaint?.status || 'open');
   const [showStatus, setShowStatus] = useState(false);
+  const [assigneeModalVisible, setAssigneeModalVisible] = useState(false);
+  const [selectedAssignee, setSelectedAssignee] = useState<string | null>(null);
+
+  const employees = complaint && Array.isArray(complaint.assignedTo) && complaint.assignedTo.length ? complaint.assignedTo : [{ name: 'Raghav Shah', role: 'Employee' }, { name: 'Rahul Samrat', role: 'Sales Team' }, { name: 'Salman Khan', role: 'Employee' }, { name: 'Rakhul Preeti', role: 'Employee' }];
 
   const statusLabel = (s: 'open' | 'inprogress' | 'resolved') => {
     if (s === 'open') return 'Open';
@@ -131,13 +135,18 @@ export default function ComplaintDetails() {
         </View>
 
         <Text style={[styles.sectionTitle, { marginTop: hp(2) }]}>Assigned to :</Text>
-        {Array.isArray(complaint.assignedTo) && complaint.assignedTo.length > 0 ? (
+          {Array.isArray(complaint.assignedTo) && complaint.assignedTo.length > 0 ? (
           complaint.assignedTo.map((a, idx) => (
             <View key={idx} style={styles.infoRow}>
               <View style={styles.infoLeft}>
                 <View style={styles.personIcon}><Ionicons name="person" size={16} color="#111" /></View>
                 <View>
-                  <Text style={styles.cardValueLarge}>{a.name}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Text style={styles.cardValueLarge}>{a.name}</Text>
+                    <TouchableOpacity style={styles.editBtn} onPress={() => { setAssigneeModalVisible(true); setSelectedAssignee(a.name || null); }}>
+                      <Ionicons name="create-outline" size={20} color="#000000" />
+                    </TouchableOpacity>
+                  </View>
                   <Text style={styles.cardLabelSmall}>{a.role || 'Employee'}</Text>
                 </View>
               </View>
@@ -149,7 +158,12 @@ export default function ComplaintDetails() {
             <View style={styles.infoLeft}>
               <View style={styles.personIcon}><Ionicons name="person" size={16} color="#111" /></View>
               <View>
-                <Text style={styles.cardValueLarge}>Not Assigned</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Text style={styles.cardValueLarge}>Not Assigned</Text>
+                  <TouchableOpacity style={styles.editBtn} onPress={() => { setAssigneeModalVisible(true); setSelectedAssignee(null); }}>
+                    <Ionicons name="create-outline" size={20} color="#000000" />
+                  </TouchableOpacity>
+                </View>
                 <Text style={styles.cardLabelSmall}>Employee</Text>
               </View>
             </View>
@@ -223,108 +237,61 @@ export default function ComplaintDetails() {
           </View>
         </View>
       </Modal>
+
+      <Modal visible={assigneeModalVisible} transparent animationType="slide">
+        <View style={styles.sheetOverlay}>
+          <View style={styles.bottomSheet}>
+            <View style={{ alignItems: 'center' }}>
+              <TouchableOpacity style={styles.sheetCloseCircle} onPress={() => setAssigneeModalVisible(false)}>
+                <Ionicons name="close" size={18} color="#DFAF2B" />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.sheetTitle}>Assigned To</Text>
+            <ScrollView style={styles.sheetList}>
+              {employees.map((emp: any, i: number) => (
+                <Pressable key={i} onPress={() => setSelectedAssignee(emp.name)} style={[styles.sheetItem, selectedAssignee === emp.name && styles.sheetItemActive]}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={styles.sheetAvatar}><Ionicons name="person" size={16} color="#111" /></View>
+                    <View style={{ marginLeft: wp(3) }}>
+                      <Text style={styles.sheetName}>{emp.name}</Text>
+                      <Text style={styles.sheetRole}>{emp.role || 'Employee'}</Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity style={styles.sheetCallBtn}><Ionicons name="call" size={16} color="#fff" /></TouchableOpacity>
+                </Pressable>
+              ))}
+            </ScrollView>
+
+            <View style={styles.sheetButtonsRow}>
+              <TouchableOpacity style={styles.sheetCancelBtn} onPress={() => setAssigneeModalVisible(false)}>
+                <Text style={styles.sheetCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.sheetAssignBtn} onPress={() => { setAssigneeModalVisible(false); if (Platform.OS === 'android') ToastAndroid.show('Assigned', ToastAndroid.SHORT); }}>
+                <Text style={styles.sheetAssignText}>Assigned</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: '#FFFFFF' 
-  },
-  headerRow: { 
-    height: hp(7) + (Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0), 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    paddingHorizontal: wp(4),
-    borderBottomWidth: 0, 
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 12, 
-    backgroundColor: '#EDF4FF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  backBtn: { 
-    width: hp(4.5), 
-    height: wp(6), 
-    justifyContent: 'center', 
-    alignItems: 'center' 
-  },
-  headerTitle: { 
-    flex: 1, 
-    textAlign: 'left', 
-    fontSize: normalize(18), 
-    fontFamily: "Inter-Medium", 
-    color: '#171A1F',
-    paddingLeft: wp(2)
-  },
-  content: { 
-    paddingVertical: hp(2),
-    paddingHorizontal: wp(5) 
-  },
-  topRow: { 
-    flexDirection: 'column', 
-    alignItems: 'flex-start', 
-  },
-  titlePillsRow: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  dateRow: {
-    flexDirection: 'row',
-    gap: wp(2),
-    marginTop: hp(0.8)
-  },
-  commentRow: {
-    flexDirection: 'row',
-    alignItems: 'stretch',
-    width: '100%',
-    marginTop: hp(1),
-    gap: wp(2),
-  },
-  commentInput: {
-    flex: 1,
-    backgroundColor: '#FEFEFE',
-    borderWidth: 1,
-    borderColor: '#E3E3E3',
-    padding: wp(2.5),
-    borderRadius: 8,
-    fontFamily: "Inter-Regular",
-    fontSize: normalize(11.6),
-    color: '#BAB7B7',},
-  addBtn: {
-    backgroundColor: '#FFD54A',
-    width: normalize(84),
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E3E3E3',
-  },
-  complaintTitle: { 
-    fontSize: normalize(17), 
-    fontFamily: "Inter-SemiBold",
-    color: '#000000' 
-  },
-  statusPill: { 
-    backgroundColor: '#FFECEC', 
-    paddingHorizontal: wp(3.5), 
-    paddingVertical: hp(0.6), 
-    borderRadius: normalize(18), 
-    borderWidth: 0.6, 
-    borderColor: '#FFD2D6',
-    minWidth: normalize(72),
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  statusText: { 
-    color: '#D91F1F', 
-    fontSize: normalize(12), 
-    fontFamily: 'Inter-SemiBold'
-  },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  headerRow: { height: hp(7) + (Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0), flexDirection: 'row', alignItems: 'center', paddingHorizontal: wp(4), borderBottomWidth: 0, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 12, backgroundColor: '#EDF4FF', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 2 },
+  backBtn: { width: hp(4.5), height: wp(6), justifyContent: 'center', alignItems: 'center' },
+  headerTitle: { flex: 1, textAlign: 'left', fontSize: normalize(18), fontFamily: 'Inter-Medium', color: '#171A1F', paddingLeft: wp(2) },
+  content: { paddingVertical: hp(2), paddingHorizontal: wp(5) },
+  topRow: { flexDirection: 'column', alignItems: 'flex-start' },
+  titlePillsRow: { width: '100%', flexDirection: 'row', justifyContent: 'space-between' },
+  dateRow: { flexDirection: 'row', gap: wp(2), marginTop: hp(0.8) },
+  commentRow: { flexDirection: 'row', alignItems: 'stretch', width: '100%', marginTop: hp(1), gap: wp(2) },
+  commentInput: { flex: 1, backgroundColor: '#FEFEFE', borderWidth: 1, borderColor: '#E3E3E3', padding: wp(2.5), borderRadius: 8, fontFamily: 'Inter-Regular', fontSize: normalize(11.6), color: '#BAB7B7' },
+  addBtn: { backgroundColor: '#FFD54A', width: normalize(84), alignItems: 'center', justifyContent: 'center', borderRadius: 8, borderWidth: 1, borderColor: '#E3E3E3' },
+  complaintTitle: { fontSize: normalize(17), fontFamily: 'Inter-SemiBold', color: '#000000' },
+  statusPill: { backgroundColor: '#FFECEC', paddingHorizontal: wp(3.5), paddingVertical: hp(0.6), borderRadius: normalize(18), borderWidth: 0.6, borderColor: '#FFD2D6', minWidth: normalize(72), alignItems: 'center', justifyContent: 'center' },
+  statusText: { color: '#D91F1F', fontSize: normalize(12), fontFamily: 'Inter-SemiBold' },
   statusOpen: { backgroundColor: 'rgba(255, 178, 178, 0.79)', borderColor: 'rgba(171,171,171,0.80)' },
   statusTextOpen: { color: '#940000' },
   statusInprogress: { backgroundColor: '#FFECA7', borderColor: 'rgba(171,171,171,0.80)' },
@@ -334,63 +301,18 @@ const styles = StyleSheet.create({
   cardRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: hp(0.3), paddingHorizontal: normalize(4) },
   cardLabel: { fontSize: normalize(12), color: '#6B7280', fontFamily: 'Inter-Regular', textAlign: 'left' },
   cardValue: { flex: 1, fontSize: normalize(13.2), color: '#111827', fontFamily: 'Inter-Medium', textAlign: 'right' },
-  pillsRow: { 
-    flexDirection: 'row', 
-    gap: wp(2), 
-    marginBottom: hp(0.6) 
-  },
-  sectionTitle: { 
-    marginTop: hp(1), 
-    marginBottom: hp(0.5), 
-    fontFamily: "Inter-Regular", 
-    fontSize: normalize(15) ,
-    color: '#000000'
-  },
-  descriptionBox: { 
-    backgroundColor: '#F7FAFF', 
-    paddingVertical: wp(2), 
-    paddingHorizontal: wp(3),
-    borderRadius: normalize(8), 
-    borderWidth: 1, 
-    borderColor: '#E3E3E3' 
-  },
-  descriptionText: { 
-    color: '#333131', 
-    lineHeight: normalize(18) ,
-    fontFamily: "Inter-Regular",
-    fontSize: normalize(11.5),
-    textAlign: 'left'
-  },
-  photosRow: { 
-    flexDirection: 'row', 
-    gap: wp(3), 
-    marginTop: hp(0.6), 
-    alignItems: 'center' 
-  },
-  photoThumb: { 
-    width: wp(25), 
-    height: wp(25), 
-    backgroundColor: '#fff', 
-    borderRadius: 8, 
-    borderWidth: 1, 
-    borderColor: '#EEF3F9', 
-    overflow: 'hidden' 
-  },
+  pillsRow: { flexDirection: 'row', gap: wp(2), marginBottom: hp(0.6) },
+  sectionTitle: { marginTop: hp(1), marginBottom: hp(0.5), fontFamily: 'Inter-Regular', fontSize: normalize(15), color: '#000000' },
+  descriptionBox: { backgroundColor: '#F7FAFF', paddingVertical: wp(2), paddingHorizontal: wp(3), borderRadius: normalize(8), borderWidth: 1, borderColor: '#E3E3E3' },
+  descriptionText: { color: '#333131', lineHeight: normalize(18), fontFamily: 'Inter-Regular', fontSize: normalize(11.5), textAlign: 'left' },
+  photosRow: { flexDirection: 'row', gap: wp(3), marginTop: hp(0.6), alignItems: 'center' },
+  photoThumb: { width: wp(25), height: wp(25), backgroundColor: '#fff', borderRadius: 8, borderWidth: 1, borderColor: '#EEF3F9', overflow: 'hidden' },
   infoRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: hp(0.8), paddingHorizontal: normalize(4) },
   infoLeft: { flexDirection: 'row', alignItems: 'center', gap: wp(3) },
   cardValueLarge: { fontSize: normalize(14), fontFamily: 'Inter-SemiBold', color: '#000000' },
   cardLabelSmall: { fontSize: normalize(12), fontFamily: 'Inter-Regular', color: '#6B7280' },
-  logItem: { 
-    flexDirection: 'row', 
-    alignItems: 'flex-start', 
-    gap: wp(3), 
-    marginTop: hp(10/16),
-    marginLeft: wp(2.5)
-  },
-  changeLabel: { 
-    fontSize: normalize(14), 
-    fontFamily: 'Inter-Medium',
-  },
+  logItem: { flexDirection: 'row', alignItems: 'flex-start', gap: wp(3), marginTop: hp(10/16), marginLeft: wp(2.5) },
+  changeLabel: { fontSize: normalize(14), fontFamily: 'Inter-Medium' },
   statusChangeRow: { marginTop: hp(0.6), width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'nowrap' },
   statusSelect: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FDE9B5', paddingHorizontal: wp(4), paddingVertical: hp(1), borderRadius: normalize(8), width: normalize(170) },
   statusSelectText: { color: '#111827', fontFamily: 'Inter-Medium' },
@@ -398,216 +320,50 @@ const styles = StyleSheet.create({
   statusOptions: { position: 'absolute', top: '100%', left: 0, width: normalize(170), marginTop: hp(0.6), backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E6E6E6', borderRadius: normalize(8), overflow: 'hidden', zIndex: 20 },
   statusOption: { paddingVertical: hp(1), paddingHorizontal: wp(3) },
   statusOptionText: { color: '#111827' },
-  logDot: { 
-    width: hp(1), 
-    height: hp(1), 
-    borderRadius: hp(0.5), 
-    backgroundColor: '#FF0000', 
-    alignSelf: 'flex-start',
-    marginTop: hp(0.5)
-  },
-  logTextContainer: {
-    flex: 1,
-    marginLeft: wp(1),
-  },
-  logTitle: { 
-    fontFamily: "Inter-Regular", 
-    fontSize: normalize(13), 
-    color: '#000000',
-    fontWeight: '500'
-  },
-  logTime: { 
-    color: '#4A4646', 
-    fontSize: normalize(11), 
-    marginTop: hp(0.25) ,
-    fontFamily: "Inter-Regular"
-  },
-  assignedInner: { 
-    paddingTop: hp(0.6), 
-    marginTop: hp(6/16) 
-  },
-  assignedItem: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    justifyContent: 'space-between', 
-    width: '100%', 
-    marginBottom: hp(0.8), 
-    backgroundColor: '#F7FAFF', 
-    padding: wp(2.2), 
-    borderRadius: normalize(10), 
-    borderWidth: 1.25, 
-    borderColor: '#D9D9D9' 
-  },
-  assignedLeft: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    gap: wp(3) 
-  },
-  personIcon: { 
-    width: normalize(34), 
-    height: normalize(34), 
-    borderRadius: normalize(17), 
-    backgroundColor: '#FFFFFF', 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    borderWidth: 1, 
-    borderColor: '#EEF3F9' 
-  },
-  assigneeName: { 
-    color: '#000000', 
-    fontSize: normalize(12), 
-    fontFamily: "Inter-Regular" 
-  },
-  contactIcons: { 
-    flexDirection: 'row', 
-    alignItems: 'center' 
-  },
-  iconCircle: { 
-    width: normalize(32), 
-    height: normalize(32), 
-    borderRadius: normalize(16), 
-    backgroundColor: '#04D111', 
-    justifyContent: 'center', 
-    alignItems: 'center' 
-  },
-  footerRow: { 
-    flexDirection: 'row', 
-    padding: wp(2), 
-    gap: wp(3) ,
-    marginBottom: hp(4)
-  },
-  secondaryBtn: { 
-    flex: 1, 
-    backgroundColor: '#FFFFFF', 
-    borderWidth: 1, 
-    borderColor: '#434343', 
-    padding: wp(3), 
-    borderRadius: 8, 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    justifyContent: 'center' 
-  },
-  primaryBtn: { 
-    flex: 1, 
-    backgroundColor: '#EEF6FF', 
-    borderWidth: 1, 
-    borderColor: '#434343', 
-    padding: wp(3), 
-    borderRadius: 8, 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    justifyContent: 'center' 
-  },
-  secondaryText: { 
-    color: '#000000',
-    fontFamily: "Inter-Medium",
-    fontSize: normalize(13) 
-  },
-  primaryText: { 
-    color: '#000000',
-    fontFamily: "Inter-Medium",
-    fontSize: normalize(13)
-   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: wp(6),
-  },
-  modalCardWrapper: {
-    width: '100%',
-    alignItems: 'center',
-  },
-  modalCard: {
-    width: wp(90),
-    maxWidth: 380,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    paddingTop: normalize(20),
-    paddingHorizontal: wp(5),
-    minHeight: hp(34),
-    paddingBottom: hp(4),
-    alignItems: 'flex-start',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  modalIconCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#FEE4E2',
-    borderWidth: 1,
-    borderColor: 'rgba(217,31,31,0.12)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: wp(3),
-  },
-  modalTitle: {
-    fontSize: normalize(18),
-    fontFamily: 'Inter-SemiBold',
-    color: '#181D27',
-    marginTop: normalize(6),
-    textAlign: 'left',
-    alignSelf: 'flex-start',
-  },
-  modalDesc: {
-    textAlign: 'left',
-    color: '#6B6B6B',
-    fontSize: normalize(13),
-    marginTop: hp(1.2),
-    lineHeight: normalize(19),
-    alignSelf: 'flex-start',
-  },
-  modalDesca: {
-    textAlign: 'left',
-    color: '#6B6B6B',
-    fontSize: normalize(13),
-    lineHeight: normalize(19),
-    alignSelf: 'flex-start',
-  },
-  modalIconWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  modalContentInner: {
-    width: '100%',
-    alignItems: 'flex-start',
-    paddingTop: hp(0.5),
-    paddingLeft: 0,
-    flex: 1,
-  },
-  modalPrimaryBtn: {
-    width: '100%',
-    backgroundColor: '#D92D20',
-    paddingVertical: hp(1.4),
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: hp(2),
-  },
-  modalPrimaryText: {
-    color: '#FFFFFF',
-    fontSize: normalize(15),
-    fontFamily: 'Inter-SemiBold',
-  },
-  modalCancelBtn: {
-    width: '100%',
-    backgroundColor: '#FFFFFF',
-    paddingVertical: hp(1.2),
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    marginTop: hp(1),
-  },
-  modalCancelText: {
-    color: '#111827',
-    fontSize: normalize(14),
-    fontFamily: 'Inter-Regular',
-  },
+  logDot: { width: hp(1), height: hp(1), borderRadius: hp(0.5), backgroundColor: '#FF0000', alignSelf: 'flex-start', marginTop: hp(0.5) },
+  logTextContainer: { flex: 1, marginLeft: wp(1) },
+  logTitle: { fontFamily: 'Inter-Regular', fontSize: normalize(13), color: '#000000', fontWeight: '500' },
+  logTime: { color: '#4A4646', fontSize: normalize(11), marginTop: hp(0.25), fontFamily: 'Inter-Regular' },
+  assignedInner: { paddingTop: hp(0.6), marginTop: hp(6/16) },
+  assignedItem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: hp(0.8), backgroundColor: '#F7FAFF', padding: wp(2.2), borderRadius: normalize(10), borderWidth: 1.25, borderColor: '#D9D9D9' },
+  assignedLeft: { flexDirection: 'row', alignItems: 'center', gap: wp(3) },
+  personIcon: { width: normalize(34), height: normalize(34), borderRadius: normalize(17), backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: '#EEF3F9' },
+  assigneeName: { color: '#000000', fontSize: normalize(12), fontFamily: 'Inter-Regular' },
+  contactIcons: { flexDirection: 'row', alignItems: 'center' },
+  iconCircle: { width: normalize(32), height: normalize(32), borderRadius: normalize(16), backgroundColor: '#04D111', justifyContent: 'center', alignItems: 'center' },
+  editBtn: { marginLeft: wp(2), width: hp(3.5), height: hp(3.5), borderRadius: 6, justifyContent: 'center', alignItems: 'center', marginTop: -2, backgroundColor: '#FFFFFF' },
+  sheetOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.35)', justifyContent: 'flex-end' },
+  sheetCloseCircle: { position: 'absolute', top: hp(-3),alignSelf: 'center', width: hp(4), height: hp(4), borderRadius: normalize(22), borderWidth: 1, borderColor: '#F6D38B', backgroundColor: '#FFF7E6', justifyContent: 'center', alignItems: 'center', zIndex: 20 },
+  bottomSheet: { backgroundColor: '#FFFFFF', borderTopLeftRadius: 16, borderTopRightRadius: 16, paddingTop: normalize(40), paddingHorizontal: wp(4), paddingBottom: hp(4), maxHeight: hp(68), width: '100%', alignSelf: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 8 },
+  sheetTitle: { fontSize: normalize(18), fontFamily: 'Inter-SemiBold', color: '#000000', marginBottom: hp(1), paddingTop: hp(0.6) },
+  sheetList: { marginTop: hp(1) },
+  sheetItem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FFFFFF', padding: wp(3), borderRadius: 8, borderWidth: 1, borderColor: '#F1F5F9', marginBottom: hp(1) },
+  sheetItemActive: { backgroundColor: '#E8F0FF' },
+  sheetAvatar: { width: normalize(40), height: normalize(40), borderRadius: normalize(20), backgroundColor: '#FFF7E6', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: '#F1F5F9' },
+  sheetName: { fontSize: normalize(14), fontFamily: 'Inter-SemiBold', color: '#000000' },
+  sheetRole: { fontSize: normalize(12), fontFamily: 'Inter-Regular', color: '#6B7280' },
+  sheetCallBtn: { width: normalize(32), height: normalize(32), borderRadius: normalize(20), backgroundColor: '#04D111', justifyContent: 'center', alignItems: 'center' },
+  sheetButtonsRow: { flexDirection: 'row', marginTop: hp(2), gap: wp(3) },
+  sheetCancelBtn: { flex: 1, borderWidth: 1, borderColor: '#E3E3E3', backgroundColor: '#FFFFFF', paddingVertical: hp(1.4), borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
+  sheetCancelText: { color: '#000000', fontFamily: 'Inter-Medium' },
+  sheetAssignBtn: { flex: 1, backgroundColor: '#DCEAFE', paddingVertical: hp(1.4), borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
+  sheetAssignText: { color: '#000000', fontFamily: 'Inter-Medium' },
+  footerRow: { flexDirection: 'row', padding: wp(2), gap: wp(3), marginBottom: hp(4) },
+  secondaryBtn: { flex: 1, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#434343', padding: wp(3), borderRadius: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
+  primaryBtn: { flex: 1, backgroundColor: '#EEF6FF', borderWidth: 1, borderColor: '#434343', padding: wp(3), borderRadius: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
+  secondaryText: { color: '#000000', fontFamily: 'Inter-Medium', fontSize: normalize(13) },
+  primaryText: { color: '#000000', fontFamily: 'Inter-Medium', fontSize: normalize(13) },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center', paddingHorizontal: wp(6) },
+  modalCardWrapper: { width: '100%', alignItems: 'center' },
+  modalCard: { width: wp(90), maxWidth: 380, backgroundColor: '#FFFFFF', borderRadius: 16, paddingTop: normalize(20), paddingHorizontal: wp(5), minHeight: hp(34), paddingBottom: hp(4), alignItems: 'flex-start', shadowColor: '#000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 6 },
+  modalIconCircle: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#FEE4E2', borderWidth: 1, borderColor: 'rgba(217,31,31,0.12)', justifyContent: 'center', alignItems: 'center', marginRight: wp(3) },
+  modalTitle: { fontSize: normalize(18), fontFamily: 'Inter-SemiBold', color: '#181D27', marginTop: normalize(6), textAlign: 'left', alignSelf: 'flex-start' },
+  modalDesc: { textAlign: 'left', color: '#6B6B6B', fontSize: normalize(13), marginTop: hp(1.2), lineHeight: normalize(19), alignSelf: 'flex-start' },
+  modalDesca: { textAlign: 'left', color: '#6B6B6B', fontSize: normalize(13), lineHeight: normalize(19), alignSelf: 'flex-start' },
+  modalIconWrap: { flexDirection: 'row', alignItems: 'center' },
+  modalContentInner: { width: '100%', alignItems: 'flex-start', paddingTop: hp(0.5), paddingLeft: 0, flex: 1 },
+  modalPrimaryBtn: { width: '100%', backgroundColor: '#D92D20', paddingVertical: hp(1.4), borderRadius: 8, alignItems: 'center', justifyContent: 'center', marginTop: hp(2) },
+  modalPrimaryText: { color: '#FFFFFF', fontSize: normalize(15), fontFamily: 'Inter-SemiBold' },
+  modalCancelBtn: { width: '100%', backgroundColor: '#FFFFFF', paddingVertical: hp(1.2), borderRadius: 8, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#E5E7EB', marginTop: hp(1) },
+  modalCancelText: { color: '#111827', fontSize: normalize(14), fontFamily: 'Inter-Regular' }
 });
