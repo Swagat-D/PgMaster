@@ -28,6 +28,16 @@ export default function AddComplaint() {
     return tenantsData.filter(t => t.name.toLowerCase().includes(q) || t.room.toLowerCase().includes(q))
   }, [tenantQuery])
 
+   const pickImage = async () => {
+      try {
+        const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.7 });
+        if (!res.canceled) {
+          const uri = res.assets && res.assets[0] && res.assets[0].uri;
+          if (uri) setImages(prev => [...prev, uri]);
+        }
+      } catch (e) { }
+    };
+
   // Assigned To modal state and sample employee list
   const [assignedModalVisible, setAssignedModalVisible] = useState(false)
   const [assignedQuery, setAssignedQuery] = useState('')
@@ -101,34 +111,22 @@ export default function AddComplaint() {
         </View>
 
         <Text style={[styles.label,{marginTop:hp(2)}]}>Upload Photo</Text>
-        <View style={styles.photosRow}>
-          {images.map((uri, idx) => (
-            <View key={idx} style={styles.imageWrapper}>
-              <View style={styles.photoThumb}>
-                <Image source={{ uri }} style={{ width: '100%', height: '100%' }} resizeMode='cover' />
-              </View>
-              <TouchableOpacity style={styles.removeBtn} onPress={() => setImages(prev => prev.filter((_, i) => i !== idx))}>
-                <Ionicons name="close" size={14} color="#111" />
-              </TouchableOpacity>
-            </View>
-          ))}
-
-          <TouchableOpacity style={[styles.photoThumb, styles.photoAdd]} onPress={async () => {
-            try {
-              const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.7 });
-              if (!res.canceled) {
-                const uri = res.assets && res.assets[0] && res.assets[0].uri
-                if (uri) {
-                  setImages(prev => [...prev, uri])
-                }
-              }
-            } catch (e) {
-              if (Platform.OS === 'android') ToastAndroid.show('Unable to pick image', ToastAndroid.SHORT)
-            }
-          }}>
-            <Ionicons name="image-outline" size={28} color="#9CA3AF" />
-          </TouchableOpacity>
-        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={[styles.photosRow, { paddingRight: wp(3) }]}>
+                  {images.map((uri, idx) => (
+                    <View key={idx} style={styles.imageWrapper}>
+                      <View style={styles.photoThumb}>
+                        <Image source={{ uri }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+                      </View>
+                      <TouchableOpacity style={styles.removeBtn} onPress={() => setImages(prev => prev.filter((_, i) => i !== idx))}>
+                        <Ionicons name="close" size={14} color="#111" />
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+        
+                  <TouchableOpacity style={[styles.photoThumb, styles.photoAdd]} onPress={pickImage}>
+                    <Ionicons name="image-outline" size={28} color="#9CA3AF" />
+                  </TouchableOpacity>
+                </ScrollView>
 
         <TouchableOpacity
           style={styles.addBtn}

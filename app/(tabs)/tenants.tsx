@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import React, { useMemo, useRef, useState } from 'react';
 import { Dimensions, Image, Keyboard, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -25,6 +26,7 @@ const formatINR = (amt?: number) => {
 };
 
 export default function Tenants() {
+  const router = useRouter();
   const [searchText, setSearchText] = useState('');
   const inputRef = useRef<TextInput | null>(null);
   const [viewMode, setViewMode] = useState<'all' | 'under'>('all');
@@ -245,6 +247,9 @@ export default function Tenants() {
         </View>
         <TenantDetailsModal visible={!!selectedTenant} tenant={selectedTenant} onClose={() => setSelectedTenant(null)} />
       </ScrollView>
+      <TouchableOpacity style={styles.fab} activeOpacity={0.85} onPress={() => router.push('/addTenant')}>
+        <Ionicons name="add" size={28} color="#414141" />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
@@ -309,4 +314,5 @@ const styles = StyleSheet.create({
   joined: { fontSize: normalize(13), color: '#6B7280', marginLeft: wp(1), fontFamily: 'Poppins-Regular' },
   noticeBadge: { position: 'absolute', top: hp(0.6), right: wp(4), borderWidth: 1, borderColor: '#FF2D2D', paddingHorizontal: wp(3), paddingVertical: hp(0.35), borderRadius: normalize(8), backgroundColor: '#FFFFFF' },
   noticeBadgeText: { color: '#FF2D2D', fontSize: normalize(12), fontFamily: 'Inter-SemiBold' },
+  fab: { position: 'absolute', right: wp(6), bottom: hp(12), width: normalize(50), height: normalize(50), borderRadius: normalize(12), backgroundColor: '#D7E6FF', justifyContent: 'center', alignItems: 'center', borderWidth: 1.2, borderColor: '#EAEBEE' },
 });

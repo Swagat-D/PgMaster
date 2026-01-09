@@ -223,6 +223,12 @@ export default function Property() {
 					</TouchableOpacity>
 				</View>
 			)}
+
+			{!isEmpty && (
+				<TouchableOpacity style={styles.faba} activeOpacity={0.85} onPress={() => router.push('/property/new')}>
+				<Ionicons name="add" size={28} color="#414141" />
+			</TouchableOpacity>
+			)}
 		</SafeAreaView>
 	);
 }
@@ -261,8 +267,9 @@ const styles = StyleSheet.create({
 	bubbleWrap: { alignItems: 'flex-end', marginBottom: hp(1), right: hp(5) },
 	emptyCTABox: { backgroundColor: '#FDE68A', paddingHorizontal: wp(5), paddingVertical: hp(1.1), borderRadius: normalize(8), maxWidth: wp(60), shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 4, elevation: 2 },
 	emptyCTAText: { color: '#111827', fontSize: normalize(13) },
-	fab: { width: normalize(56), height: normalize(56), borderRadius: normalize(28), backgroundColor: '#000', justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.12, shadowRadius: 6, elevation: 6 },
+		faba: { position: 'absolute', right: wp(6), bottom: hp(12), width: normalize(50), height: normalize(50), borderRadius: normalize(12), backgroundColor: '#D7E6FF', justifyContent: 'center', alignItems: 'center', borderWidth: 1.2, borderColor: '#EAEBEE' },
 	plus: { color: '#FFF', fontSize: normalize(28), lineHeight: normalize(28) },
+	fab: { width: normalize(56), height: normalize(56), borderRadius: normalize(28), backgroundColor: '#000', justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.12, shadowRadius: 6, elevation: 6 },
 
 	roomCard: { backgroundColor: '#FFFFFF', borderRadius: normalize(12), paddingVertical: hp(1.5), paddingHorizontal: wp(3), marginBottom: hp(1.5), shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 6, elevation: 2 },
 	roomHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: hp(1) },

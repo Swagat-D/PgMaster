@@ -2,7 +2,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useMemo, useState } from 'react';
-import { Dimensions, Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Image, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import roomsDataImport, { Room } from '../../src/data/properties';
 import tenantsDataImport, { Tenant } from '../../src/data/tenants';
@@ -40,6 +40,7 @@ export default function RoomDetails() {
     }, [room]);
 
     const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
+    const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
     if (!room) {
         return (
@@ -59,11 +60,10 @@ export default function RoomDetails() {
     const occupiedBeds = room.occupancyPercent != null ? Math.round((room.occupancyPercent / 100) * room.bedCount) : (room.status === 'full' ? room.bedCount : 0);
     const availableBeds = Math.max(0, room.bedCount - occupiedBeds);
 
-    // Derived safe values from arrays (handle empty or null arrays)
     const firstTicket: string | null = Array.isArray(room.activeTicketIssue) && room.activeTicketIssue.length > 0 ? room.activeTicketIssue[0] : null;
     const remainingTickets = Array.isArray(room.activeTicketIssue) ? Math.max(0, room.activeTicketIssue.length - 1) : 0;
-    const rentDueList: string[] = Array.isArray(room.rentDueTenants) ? room.rentDueTenants : [];
-    const underNoticeList: string[] = Array.isArray(room.underNoticeTenant) ? room.underNoticeTenant : [];
+    const rentDueList: string[] = Array.isArray(room.rentDueTenants) ? room.rentDueTenants.filter(t => typeof t === 'string' && t?.toString().trim() !== '') : [];
+    const underNoticeList: string[] = Array.isArray(room.underNoticeTenant) ? room.underNoticeTenant.filter(t => typeof t === 'string' && t?.toString().trim() !== '') : [];
     const firstUnderNotice = underNoticeList.length > 0 ? underNoticeList[0] : null;
 
     return (
@@ -160,12 +160,16 @@ export default function RoomDetails() {
                                 <Text style={styles.statCount}>{room.rentDueCount ?? 0}</Text>
                             </View>
                             <View style={styles.rentDetails}>
-                                {rentDueList.slice(0, 2).map((tenant, index) => (
-                                    <View key={index} style={styles.rentPersonRow}>
-                                        <Ionicons name="person" size={12} color="#6B7280" />
-                                        <Text style={styles.rentPersonName}>{tenant}</Text>
-                                    </View>
-                                ))}
+                                {rentDueList.length > 0 ? (
+                                    rentDueList.slice(0, 2).map((tenant, index) => (
+                                        <View key={index} style={styles.rentPersonRow}>
+                                            <Ionicons name="person" size={12} color="#6B7280" />
+                                            <Text style={styles.rentPersonName}>{tenant ?? ''}</Text>
+                                        </View>
+                                    ))
+                                ) : (
+                                    <Text style={styles.ticketIssue}>No rent due</Text>
+                                )}
                                 {rentDueList.length > 2 && (
                                     <View style={styles.rentBadge}>
                                         <Text style={styles.rentBadgeText}>{rentDueList.length - 2}+</Text>
@@ -180,11 +184,11 @@ export default function RoomDetails() {
                                 <Text style={styles.statTitle}>Under Notice: </Text>
                                 <Text style={styles.statCount}>{room.underNoticeCount ?? 0}</Text>
                             </View>
-                            {room.underNoticeCount && room.underNoticeCount > 0 && firstUnderNotice && (
+                            {underNoticeList.length > 0 && (
                                 <View style={styles.noticeDetails}>
                                     <View style={styles.noticePersonRow}>
                                         <Ionicons name="person" size={12} color="#6B7280" />
-                                        <Text style={styles.noticePersonName}>{firstUnderNotice}</Text>
+                                        <Text style={styles.noticePersonName}>{underNoticeList[0]}</Text>
                                     </View>
                                 </View>
                             )}
@@ -245,13 +249,48 @@ export default function RoomDetails() {
          </ScrollView>
 
             <View style={styles.actionButtonsSection}>
-                <TouchableOpacity style={styles.editButton} activeOpacity={0.9}>
+                <TouchableOpacity style={styles.editButton} activeOpacity={0.9} onPress={() => router.push(`/property/edit?id=${room.id}`)}>
                     <Text style={styles.editButtonText}>Edit Room</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.deleteButton} activeOpacity={0.9}>
+                <TouchableOpacity style={styles.deleteButton} activeOpacity={0.9} onPress={() => setDeleteModalVisible(true)}>
                     <Text style={styles.deleteButtonText}>Delete Room</Text>
                 </TouchableOpacity>
             </View>
+
+            {/* Delete Room Confirmation Modal */}
+            <Modal visible={deleteModalVisible} transparent animationType="fade">
+                <View style={styles.centeredOverlay}>
+                    <Pressable style={styles.backdrop} onPress={() => setDeleteModalVisible(false)} />
+                    <View style={styles.deleteCard}>
+                        <View style={styles.deleteCardHeader}>
+                            <View style={styles.deleteIconCircle}><Ionicons name="trash-outline" size={20} color="#D91F1F" /></View>
+                            <Pressable style={styles.deleteClose} onPress={() => setDeleteModalVisible(false)}>
+                                <Ionicons name="close" size={18} color="#9CA3AF" />
+                            </Pressable>
+                        </View>
+
+                        <Text style={styles.deleteTitle}>Delete Room</Text>
+                        <Text style={styles.deleteDesc}>Are you sure you want to delete this room ?{"\n"}This action cannot be undone.</Text>
+
+                        <TouchableOpacity style={styles.deleteAction} activeOpacity={0.9} onPress={() => {
+                            try {
+                                const idx = roomsData.findIndex(r => String(r.id) === String(room.id) || String(r.roomNumber) === String(room.roomNumber));
+                                if (idx > -1) {
+                                    roomsData.splice(idx, 1);
+                                }
+                            } catch (e) { }
+                            setDeleteModalVisible(false);
+                            router.replace('/property');
+                        }}>
+                            <Text style={styles.deleteActionText}>Delete</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.cancelAction} activeOpacity={0.9} onPress={() => setDeleteModalVisible(false)}>
+                            <Text style={styles.cancelActionText}>Cancel</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 }
@@ -350,4 +389,16 @@ const styles = StyleSheet.create({
     notFoundText: { fontSize: normalize(18), color: '#111' },
     backBtn: { marginTop: hp(2), backgroundColor: '#FDE68A', paddingHorizontal: wp(4), paddingVertical: hp(0.8), borderRadius: normalize(8) },
     backText: { color: '#000' },
+    centeredOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    backdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)' },
+    deleteCard: { width: wp(90), maxWidth: 380, backgroundColor: '#FFFFFF', borderRadius: 12, paddingHorizontal: wp(4), paddingTop: hp(3.2), paddingBottom: hp(3), alignItems: 'flex-start', shadowColor: '#000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.12, shadowRadius: 18, elevation: 12 },
+    deleteCardHeader: { width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    deleteIconCircle: { width: hp(5.5), height: hp(5.5), borderRadius: hp(2.75), backgroundColor: '#FEECEC', borderWidth: 1, borderColor: 'rgba(217,31,31,0.12)', justifyContent: 'center', alignItems: 'center' },
+    deleteClose: { width: hp(4), height: hp(4), borderRadius: hp(2), justifyContent: 'center', alignItems: 'center' },
+    deleteTitle: { fontSize: normalize(18), fontFamily: 'Inter-SemiBold', color: '#181D27', marginTop: hp(0.8) },
+    deleteDesc: { color: '#6B6B6B', fontSize: normalize(13), marginTop: hp(1), lineHeight: normalize(19) },
+    deleteAction: { width: '100%', marginTop: hp(2.2), backgroundColor: '#D92D20', paddingVertical: hp(1.4), borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
+    deleteActionText: { color: '#FFFFFF', fontSize: normalize(15), fontFamily: 'Inter-SemiBold' },
+    cancelAction: { width: '100%', marginTop: hp(1.2), borderWidth: 1, borderColor: '#E5E7EB', paddingVertical: hp(1.4), borderRadius: 8, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' },
+    cancelActionText: { color: '#111827', fontSize: normalize(15), fontFamily: 'Inter-Regular' },
 });
